@@ -9,10 +9,9 @@ Use for a bounded change the coordinator has already planned.
   owned by another subagent.
 - **Do:** make the change cleanly (registering `App` handlers before
   `app.connect()`, setting `_meta.ui.csp` inside `contents[]`, keeping
-  contributor scaffolding separate from shipped plugin files), run the targeted
-  unit/build/validation checks, preserve LF endings, and remove temporary files
-  you created.
-- **Do not:** refactor files outside the task, modify `~/.gemini/config/plugins/`
-  unless explicitly tasked, commit, or change settings.
+  contributor scaffolding separate from shipped configs/plugins), run targeted
+  unit/build/validation checks, preserve LF endings, and remove temporary files.
+- **Do not:** refactor files outside the task, modify `~/.gemini/` or
+  `~/.copilot/` unless explicitly tasked, commit, or change settings.
 - **Return:** at most 15 lines: files changed, commands run with exact results,
   and anything unverified.

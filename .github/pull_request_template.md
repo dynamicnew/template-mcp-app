@@ -3,18 +3,19 @@
 - What changed and why:
 - Source branch (`dev` from `feature/<topic>`, targeting `main`):
 
-## Verification
+## Verification (Cross-Host Testing Pyramid)
 
-- [ ] Typecheck / unit / MCP protocol tests (local or Docker): <!-- exact command + pass/fail counts -->
-- [ ] Single-file `ui://` HTML build verified (`<= 10 MiB`, no unexpected external scripts/fonts, CSP `_meta.ui.csp` set inside `contents[]`): <!-- bundle path + byte size -->
-- [ ] Plain-text `content` fallback verified for non-UI hosts (Antigravity CLI / IDE)
-- [ ] Local UI harness (`basic-host` or Playwright) checked for Light/Dark theme, narrow viewport, and console errors: <!-- exact command or why skipped -->
-- [ ] Antigravity plugin packaging checked via `agy plugin validate` (`--strict` on clean bundle or `--json | jq` filtering expected contributor/other-tool warnings) and local `agy plugin install` (if packaged as a plugin): <!-- exit code / findings or N/A -->
-- [ ] Hygiene checked (no secrets, no hardcoded user paths, LF endings, no tracked `node_modules/` or `dist/`)
+- [ ] **Layer 1 — Unit & protocol tests** (local or Docker): <!-- exact command + pass/fail counts (valid, invalid, empty, large-result, plain-text fallback) -->
+- [ ] **Layer 2 — Single-file `ui://` build & CSP** (`<= 10 MiB`, `text/html;profile=mcp-app`, `_meta.ui.csp` inside `contents[]`, Light/Dark + narrow viewport): <!-- bundle path + byte size -->
+- [ ] **Layer 3 — Emulated host harness** (`MCPJam Inspector` Strict CSP / JSON-RPC trace and/or `basic-host` / Playwright): <!-- exact command or why skipped -->
+- [ ] **Layer 4a — VS Code GitHub Copilot Chat** (tool disambiguation vs built-in tools, `readOnlyHint` vs editable-argument confirmation dialog, `Show Output` & DevTools): <!-- result or N/A -->
+- [ ] **Layer 4b — Google Antigravity** (`agy plugin validate`, local `agy plugin install`, declared `inline`/`aux_pane`/`global`/`file` entrypoints): <!-- exit code / findings or N/A -->
+- [ ] **Release QA & Security** (`mcp-release-qa` / `mcp-implementation-security-review` if shipping): <!-- summary or N/A -->
+- [ ] **Hygiene** (no secrets, no hardcoded user paths, LF endings, no tracked `node_modules/` or `dist/`)
 
 ## Unverified / Limits
 
-- <!-- e.g., live Antigravity App inline / aux_pane / global / file viewer rendering, OAuth browser sign-in -->
+- <!-- e.g., live VS Code Copilot Chat rendering, live Antigravity App aux_pane/global/file rendering, OAuth browser sign-in -->
 
 ## Documentation & Handoff
 

@@ -1,18 +1,20 @@
-# Agent project template: Antigravity MCP App (Dual-Platform)
+# Agent project template: MCP App (Dual-Host: GitHub Copilot + Google Antigravity)
 
-A reusable, dual-platform (**Google Antigravity** and **GitHub Copilot**)
-agent scaffolding template for building, migrating, and packaging interactive
+A reusable, dual-platform (**GitHub Copilot** and **Google Antigravity**) agent
+scaffolding template for building, migrating, testing, and packaging interactive
 **MCP Apps** (`io.modelcontextprotocol/ui` + `@modelcontextprotocol/ext-apps`
-v2) targeting the Google Antigravity App (inline cards, `aux_pane` side panels,
-`global` full-page views, and `file` custom viewers/editors) as well as other
-MCP Apps-compatible hosts. Contains no application code, project lore,
-machine-specific paths, or secrets.
+v2). One MCP server and single-file `ui://` HTML bundle targets **both**
+VS Code GitHub Copilot Chat and the Google Antigravity App (plus Claude Desktop,
+M365 Copilot, Goose, and plain-text CLI fallbacks), with dedicated extended
+layers for Copilot's host conventions and Antigravity's plugin/UI extensions.
+Contains no application code, project lore, machine-specific paths, or secrets.
 
-> **Choosing between templates:** Use this template when your primary focus is
-> building, migrating, or converting an interactive MCP App with bundled UI
-> views (`@modelcontextprotocol/ext-apps` skills pre-installed). Use
-> `antigravity-plugin` when building a broad multi-component Antigravity plugin
-> (skills, custom agents, rules, hooks, and optional MCP servers).
+> **Choosing between templates:** Use `mcp-app/` when building, migrating, or
+> converting an interactive MCP App (`@modelcontextprotocol/ext-apps` +
+> security/QA skills pre-installed, targeting Copilot, Antigravity, and other
+> MCP Apps hosts). Use `antigravity-plugin/` when building a broad
+> multi-component Google Antigravity plugin (skills, custom agents, rules,
+> lifecycle hooks, and optional MCP servers).
 
 ## How loading works
 
@@ -34,40 +36,47 @@ includes in either file.
 | `docs/ai/*` & `docs/app/*` | When `AGENTS.md` or rules point to them | Both | Only on demand, by heading |
 | `docs/ai/read-lists/*` | When a subagent starts | Both | One small file per subagent role |
 
-> **Contributor vs. shipped separation:** When packaging your MCP App as an
-> Antigravity plugin, the plugin loader reads shipped files from `plugin.json`
-> (or `.antigravity-plugin/plugin.json`), `mcp_config.json`, `scripts/`, and
-> `assets/`. Root `AGENTS.md`, `.agents/`, `.github/`, `.mcp.json`, and
-> `scripts/check-context-size.ps1` are contributor-only scaffolding: root
-> `AGENTS.md` triggers an expected warning under `agy plugin validate --strict`
-> at repo root (filter expected contributor/other-tool warnings with
-> `agy plugin validate --json | jq`, or run `--strict` on a clean staged bundle).
->
-> **VS Code note:** Keep `.agents/skills` enabled in `chat.agentSkillsLocations`
-> so GitHub Copilot loads the single canonical skill tree in `.agents/skills/`
-> without duplicating skills into `.github/skills/`.
+> **Dual-host packaging & separation:**
+> - **GitHub Copilot (VS Code & CLI):** Share workspace MCP config in
+>   `.mcp.json` (`"mcpServers"`) or personal `Global > Copilot Global`
+>   (`~/.copilot/mcp-config.json`, `"mcpServers"`). Legacy `.vscode/mcp.json`
+>   uses `"servers"`.
+> - **Google Antigravity (App & CLI):** Package as a plugin with `plugin.json`
+>   (or `.antigravity-plugin/plugin.json`) + `mcp_config.json` (`"mcpServers"`,
+>   `${PLUGIN_ROOT}` / `${PLUGIN_DATA}`). Root `AGENTS.md`, `.agents/`,
+>   `.github/`, `.mcp.json`, and `scripts/check-context-size.ps1` are
+>   contributor-only scaffolding (filter expected contributor/other-tool warnings
+>   with `agy plugin validate --json | jq`, or run `--strict` on a clean staged
+>   bundle).
+> - **VS Code note:** Keep `.agents/skills` enabled in
+>   `chat.agentSkillsLocations` so GitHub Copilot loads the single canonical
+>   skill tree in `.agents/skills/` without duplicating skills into
+>   `.github/skills/`.
 
 ## Adopt it
 
-1. Click **Use this template** on GitHub (or copy the contents of
-   `antigravity-mcp-app/` into your repository root).
+1. Click **Use this template** on GitHub (or copy the contents of `mcp-app/`
+   into your repository root).
 2. Fill in `Project essentials` in [AGENTS.md](AGENTS.md) with your UI
-   framework, build/test commands, and packaging target (keep `AGENTS.md` under
+   framework, build/test commands, and target hosts (keep `AGENTS.md` under
    ~70 lines).
 3. Fill in [docs/app/spec.md](docs/app/spec.md) with your tools, `ui://`
-   resources, Antigravity entrypoints (`inline`, `aux_pane`, `global`, `file`),
-   CSP allowlists, and auth/state boundaries.
+   resources, Copilot + Antigravity host matrix, CSP allowlists, and auth/state
+   boundaries.
 4. Invoke one of the bundled official MCP Apps skills to scaffold or migrate:
    - `create-mcp-app` — build a new MCP App from scratch
    - `add-app-to-server` — add interactive UI views to an existing MCP server
    - `convert-web-app` — turn an existing web app into a hybrid web + MCP App
    - `migrate-oai-app` — migrate an OpenAI Apps SDK app to MCP Apps
-5. Update [docs/ai/cost.md](docs/ai/cost.md) with your Antigravity and/or GitHub
+5. Before shipping, run `mcp-release-qa` (live protocol session & contract
+   verification) and `mcp-implementation-security-review` (OWASP MCP Top 10 &
+   RCE/auth audit).
+6. Update [docs/ai/cost.md](docs/ai/cost.md) with your Antigravity and/or GitHub
    Copilot plan limits and preferred models.
-6. If this repository supports ClarifyDoc, run `setup-clarifydoc` during
-   adoption or initial setup to generate the ClarifyDoc rule, skills,
-   `.gitignore` entry, and MCP guidance on demand (otherwise create none).
-7. Run `pwsh -NoProfile -File scripts/check-context-size.ps1 -FailOnWarning` to
+7. If this repository supports ClarifyDoc, run `setup-clarifydoc` during
+   adoption or initial setup to generate only the needed ClarifyDoc rule,
+   skills, `.gitignore` entry, and MCP guidance (otherwise create none).
+8. Run `pwsh -NoProfile -File scripts/check-context-size.ps1 -FailOnWarning` to
    verify always-on budgets, Antigravity rule caps, and skill deduplication.
 
 ## Curated skills included
@@ -76,13 +85,17 @@ Stored once in `.agents/skills/` for both platforms:
 
 - **Official MCP Apps (`modelcontextprotocol/ext-apps`):** `create-mcp-app`,
   `add-app-to-server`, `convert-web-app`, `migrate-oai-app`.
+- **Official MCP QA & security (`github/awesome-copilot`):** `mcp-release-qa`
+  (real protocol session testing & release evidence) and
+  `mcp-implementation-security-review` (OWASP MCP Top 10, baseline controls,
+  and RCE/auth review).
 - **Core workflow:** `coordinate-task` (Antigravity main-agent coordination;
   Copilot uses `.github/agents/coordinator.agent.md`), `project-remember`,
-  `systematic-debugging` (MCP Apps lifecycle, CSP/CORS, `ui://` bundling,
-  Antigravity entrypoints, and stdio/HTTP server diagnostics),
-  `verification-before-completion` (evidence matrix separating unit/protocol
-  tests, single-file UI build/size/CSP checks, `basic-host` harness,
-  `agy plugin validate`, and live Antigravity App UI checks).
+  `systematic-debugging` (cross-host MCP Apps lifecycle, CSP/CORS, Copilot tool
+  disambiguation & confirmation dialogs, Antigravity entrypoints, and
+  stdio/HTTP diagnostics), `verification-before-completion` (4-layer testing
+  pyramid separating unit/protocol tests, single-file UI/CSP builds,
+  `MCPJam`/`basic-host` emulation, and live Copilot + Antigravity checks).
 - **On-demand generators:** `generate-handoff-canvas` (recreates a Copilot
   `.github/extensions/<id>/` canvas or Antigravity MCP App side-pane panel),
   `setup-clarifydoc` (detects ClarifyDoc support at template adoption/init and
@@ -90,12 +103,12 @@ Stored once in `.agents/skills/` for both platforms:
 
 ## Optional external skills
 
-Heavy vendor skill bundles are deliberately excluded beyond the four official
-`ext-apps` skills. If your project wants deeper MCP server or UI craft guides,
-review and install only what you need via the open Skills CLI:
+Heavy vendor skill bundles are deliberately excluded beyond the curated MCP
+Apps, QA, and security skills above. Install additional vetted skills only when
+needed via the open Skills CLI:
 
-- `npx skills add anthropics/skills@mcp-builder` — TypeScript/Python MCP server
-  tool design and evaluation guidance
+- `npx skills add anthropics/skills@mcp-builder` — deeper TypeScript/Python MCP
+  server design and evaluation guidance
 - `npx skills add vercel-labs/agent-skills@web-design-guidelines` — UI and
   accessibility review guidelines
 - `npx skills add anthropics/skills@frontend-design` — custom interface design
@@ -104,12 +117,10 @@ review and install only what you need via the open Skills CLI:
 ## What is deliberately omitted
 
 - **No application code, `package.json`, secrets, or machine-local paths.** Add
-  dependencies with your package manager (`npm install`) when scaffolding so
+  dependencies via your package manager (`npm install`) when scaffolding so
   versions resolve cleanly. Workspace MCP configs live as empty `.example`
-  templates (`.agents/mcp_config.json.example` and `.mcp.json.example`); note
-  that `.mcp.json`, `.agents/mcp_config.json`, and shipped plugin
-  `mcp_config.json` use `"mcpServers"`, while VS Code's `.vscode/mcp.json`
-  expects `"servers"`. Never commit literal secrets or user paths.
+  templates (`.mcp.json.example` and `.agents/mcp_config.json.example`). Never
+  commit literal secrets or user paths.
 - **No enabled workspace hooks.** See `.agents/hooks/README.md` and
   `.github/hooks/README.md`.
 - **No prebuilt canvas extension or ClarifyDoc skill trees.** Use
@@ -120,21 +131,21 @@ review and install only what you need via the open Skills CLI:
 ```text
 AGENTS.md                                  always-loaded dual-platform router (<= ~70 lines)
 .agents/
-  rules/                                   7 Antigravity conditional rules (model_decision)
+  rules/                                   8 Antigravity conditional rules (model_decision)
   agents/                                  implementer, reviewer, handoff (explore uses built-in research)
-  skills/                                  10 shared portable skills (4 official ext-apps + core + generators)
+  skills/                                  12 shared portable skills (ext-apps + MCP QA/security + core + generators)
   hooks/README.md                          workspace hook policy (none enabled)
   mcp_config.json.example                  empty workspace MCP server list (Antigravity format)
 .github/
-  instructions/                            7 Copilot path-scoped instructions (applyTo)
+  instructions/                            8 Copilot path-scoped instructions (applyTo)
   agents/                                  coordinator, explorer, implementer, reviewer, handoff
   hooks/README.md                          workspace hook policy (none enabled)
-  pull_request_template.md                 PR verification & MCP App release checklist
+  pull_request_template.md                 PR verification & cross-host MCP App checklist
 docs/
   ai/                                      handoff.md, handoff-history/, todo.md, decisions.md, memory.md, cost.md, read-lists/
-  app/spec.md                              MCP App tools, ui:// resources, entrypoints, CSP & packaging spec
+  app/spec.md                              MCP App tools, ui:// resources, Copilot + Antigravity host matrix & CSP spec
   codebase/README.md                       index for optional on-demand architecture maps
 scripts/check-context-size.ps1             contributor-only context-budget & hygiene check
-.mcp.json.example                          empty workspace MCP server list (Copilot CLI / portable format)
+.mcp.json.example                          empty workspace MCP server list (Copilot / portable format)
 .gitignore  .gitattributes                 dependency/build/secret hygiene & consistent LF endings
 ```
