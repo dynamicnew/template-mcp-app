@@ -1,0 +1,27 @@
+# Secrets, local config and billing exports
+.env
+.env.*
+!.env.example
+*.local.*
+ai-credits*.csv
+
+# Dependencies (keep package.json / lockfiles tracked)
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+
+# Build, single-file UI bundle, and local plugin data outputs
+dist/
+build/
+*.tsbuildinfo
+*.tgz
+*.zip
+.plugin-data/
+
+# Test and temporary agent artifacts
+test-results/
+playwright-report/
+blob-report/
+.orchestrator/
+.worktrees/
